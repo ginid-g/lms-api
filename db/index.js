@@ -1,8 +1,8 @@
-const { MongoClient } = require("mongodb");
+const mongoose = require("mongoose");
 
-const client = new MongoClient(process.env.DB_URL);
+mongoose.connect(process.env.DB_URL);
 
-client.connect();
+mongoose.Promise = global.Promise;
 
 module.exports = {
   Users: require("./models/User"),

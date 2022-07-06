@@ -1,14 +1,52 @@
 const DB = require("../../db");
 
 const bcrypt = require("bcryptjs");
+const createError = require("http-errors");
 
 const authenticate = async (email, password) => {};
 
-const register = async (firstName, lastName, email, password) => {};
+const register = async (firstName, lastName = null, email, password) => {
+  if (!firstName) {
+    throw createError(400, "FirstName is required");
+  }
 
-const getAllUsers = async (pageNumber, pageSize) => {};
+  if (!email) {
+    throw createError(400, "Email is required");
+  }
+  if (!password) {
+    throw createError(400, "Password is required");
+  }
 
-const getUserById = async (id) => {};
+  if (await findUser({ email: user.email })) {
+    throw createError(400, "User with this email already exists.");
+  }
+
+  const newUser = new DB.Users({
+    firstName,
+    lastName,
+    email,
+    role: "student",
+  });
+
+  newUser.password = bcrypt.hashSync(password, 8);
+
+  return await newUser.save();
+};
+
+const getAllUsers = async (pageNumber = 1, pageSize = 10) => {
+  let skip = 0;
+  if (pageNumber > 1) {
+    skip = (pageNumber - 1) * pageSize;
+  }
+
+  const count = await DB.Users.count();
+  const users = await DB.Users.find().skip(skip).limit(pageSize);
+  return { count, users };
+};
+
+const getUserById = async (id) => {
+  return await findUser({ id: id });
+};
 
 const createUser = async (user) => {
   if (!user) throw "Users details are missing.";
@@ -47,13 +85,13 @@ const deleteUser = async (id) => {
 
   const user = await findUser({ _id: id });
 
-  if (!user) throw "User not found.";
+  if (!user) throw createError(400, "User not found.");
 
-  return await user.destroy();
+  return await user.remove();
 };
 
 const findUser = async (obj) => {
-  return await DB.Users.find(obj, {
+  return await DB.Users.findOne(obj, {
     _id: 1,
     email: 1,
     firstName: 1,
