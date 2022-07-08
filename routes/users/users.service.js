@@ -1,9 +1,39 @@
 const DB = require("../../db");
 
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 
-const authenticate = async (email, password) => {};
+const authenticate = async (email, password) => {
+  if (!email) {
+    throw createError(400, "Email is required");
+  }
+
+  if (!password) {
+    throw createError(400, "Password is required");
+  }
+
+  let user = await DB.Users.findOne({ email: email });
+
+  if (!user) {
+    throw createError(401, "Incorrect email or password");
+  }
+
+  if (!bcrypt.compareSync(password, user.password)) {
+    throw createError(401, "Incorrect email or password");
+  }
+
+  const token = jwt.sign({ userId: user._id }, "shhhhh23132");
+
+  user = JSON.parse(JSON.stringify(user));
+
+  delete user.password;
+
+  return {
+    token: token,
+    user,
+  };
+};
 
 const register = async (firstName, lastName = null, email, password) => {
   if (!firstName) {
@@ -17,7 +47,7 @@ const register = async (firstName, lastName = null, email, password) => {
     throw createError(400, "Password is required");
   }
 
-  if (await findUser({ email: user.email })) {
+  if (await findUser({ email: email })) {
     throw createError(400, "User with this email already exists.");
   }
 
@@ -78,7 +108,22 @@ const createUser = async (user) => {
   });
 };
 
-const editUser = async () => {};
+const editUser = async (user = {}) => {
+  if (!user.id) {
+    throw createError(400, "User id is required");
+  }
+
+  const editUser = await findUser({ _id: user.id });
+
+  editUser.firstName = user.firstName;
+  editUser.lastName = user.lastName;
+  editUser.role = user.role;
+  editUser.classId = user.classId;
+  editUser.parentId = user.parentId;
+  edituser.verfied = user.verfied;
+
+  return await editUses.save();
+};
 
 const deleteUser = async (id) => {
   if (!id) throw "Id is required";

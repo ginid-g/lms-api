@@ -38,7 +38,11 @@ const getUserById = (req, res, next) => {
 
 const createUser = (req, res, next) => {};
 
-const editUser = (req, res, next) => {};
+const editUser = (req, res, next) => {
+  UserService.editUser(req.body.user)
+    .then((result) => res.status(200).json({ data: result }))
+    .catch(next);
+};
 
 const deleteUser = (req, res, next) => {
   const { id } = req.params;
