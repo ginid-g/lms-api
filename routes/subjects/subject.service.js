@@ -60,7 +60,33 @@ const edit = async (id, name, classId) => {
 };
 
 const getAll = async () => {
-  return await DB.Subjects.find({}, { _id: 1, name: 1, classId: 1 });
+  return await DB.Subjects.aggregate([
+    {
+      $lookup: {
+        from: "classes",
+        localField: "classId",
+        foreignField: "_id",
+        as: "class",
+      },
+    },
+
+    {
+      $unwind: {
+        path: "$class",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
+    {
+      $project: {
+        "class._id": 1,
+        "class.name": 1,
+        _id: 1,
+        classId: 1,
+        name: 1,
+      },
+    },
+  ]);
 };
 
 const getById = async (id) => {
