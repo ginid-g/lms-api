@@ -117,49 +117,7 @@ const getAll = async () => {
 };
 
 const getById = async (id) => {
-  return DB.Quizzes.aggregate([
-    { $match: { _id: ObjectId(id) } },
-    {
-      $lookup: {
-        from: "classes",
-        localField: "classId",
-        foreignField: "_id",
-        as: "class",
-      },
-    },
-    {
-      $unwind: {
-        path: "$class",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-
-    {
-      $lookup: {
-        from: "subjects",
-        localField: "subjectId",
-        foreignField: "_id",
-        as: "subject",
-      },
-    },
-    {
-      $unwind: {
-        path: "$subject",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
-      $project: {
-        _id: 1,
-        title: 1,
-        classId: 1,
-        subjectId: 1,
-        questions: 1,
-        "class.name": 1,
-        "subject.name": 1,
-      },
-    },
-  ]);
+  return DB.Quizzes.findOne({ _id: ObjectId(id) });
 };
 
 const remove = async (id) => {
