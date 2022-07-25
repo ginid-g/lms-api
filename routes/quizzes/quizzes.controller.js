@@ -11,9 +11,9 @@ const create = async (req, res, next) => {
 };
 
 const edit = async (req, res, next) => {
-  const { id, classId, subjectId, title, questions } = req.body;
+  const { _id, classId, subjectId, title, questions } = req.body;
 
-  QuizService.edit(id, classId, subjectId, title, questions)
+  QuizService.edit(_id, classId, subjectId, title, questions)
     .then((result) => res.status(200).json({ data: result }))
     .catch(next);
 };
