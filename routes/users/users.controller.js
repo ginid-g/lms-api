@@ -36,7 +36,11 @@ const getUserById = (req, res, next) => {
     .catch(next);
 };
 
-const createUser = (req, res, next) => {};
+const createUser = (req, res, next) => {
+   UserService.createUser(req.body.user)
+     .then((result) => res.status(200).json({ data: result }))
+     .catch(next);
+};
 
 const editUser = (req, res, next) => {
   UserService.editUser(req.body.user)
